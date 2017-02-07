@@ -20,3 +20,4 @@ doc
 rebar.lock
 .tags*
 .fuse_hidden*
+tmp.appup.*
