@@ -4,13 +4,18 @@ VERSION = 0.1.0
 CHMOD = $(shell chmod +x ./rebar3)
 REBAR = ./rebar3
 
-.PHONY: compile doc clean version release console clean
+.PHONY: build doc clean version release console clean
 
-all: clean compile
+all: clean version release
 
-compile:
+build:
 	@$(CHMOD)
 	@$(REBAR) compile
+
+#Generate a release 
+release:
+	@$(CHMOD)
+	@$(REBAR) release
 
 doc:
 	@$(REBAR) edoc
@@ -18,14 +23,10 @@ doc:
 version:
 	@echo "Setting version:$(VERSION)"
 	perl -p -i -e "s/^\s*{vsn,.*/  {vsn, \"$(VERSION)\"},/g" src/${PROJECT}.app.src
-	perl -p -i -e "s/^{relx,.*/{relx, [{release, { ${PROJECT} , \"$(VERSION)\" },/g" rebar.config
+	perl -p -i -e "s/^{relx,.*/{relx, [{release, { ${PROJECT}, \"$(VERSION)\" },/g" rebar.config
 	perl -p -i -e "s/^{.*/{\"$(VERSION)\",/g" src/${PROJECT}.appup.src
 	@echo "Version Changed Done!"
 
-#Generate a release 
-release:
-	@$(CHMOD)
-	@$(REBAR) release
 
 console:
 	./_build/default/rel/${PROJECT}/bin/${PROJECT} console
