@@ -5,7 +5,7 @@
 %%%
 %%%      http://www.apache.org/licenses/LICENSE-2.0
 %%%
-%%% Copyright (c) 2014-2016 dwg <bypf2009@vip.qq.com>
+%%% Copyright (c) 2014-2016 qingchuduwi <bypf2009@vip.qq.com>
 %%%
 %%%  Unless required by applicable law or agreed to in writing, software
 %%%  distributed under the License is distributed on an 'AS IS' BASIS,
@@ -14,8 +14,8 @@
 %%%  limitations under the License.
 %%%
 %%% @doc  数据处理，如：大小端转换 
-%%% @author  dwg <'bypf2009@vip.qq.com'> 
-%%% @copyright 2014-2016 dwg <bypf2009@vip.qq.com>
+%%% @author  qingchuduwi <'bypf2009@vip.qq.com'> 
+%%% @copyright 2014-2016 qingchuduwi <bypf2009@vip.qq.com>
 %%% @end
 %%% created|changed : 2016-03-23 10:09
 %%% coding : utf-8 
@@ -24,24 +24,18 @@
 -export([
 	reverse/1,	% 大小端反转，类型不变
 	b2l_uint/1,	% 二进制转成小端无符号整型
-	base64en/1, % Json的键值列表打包
-	base64de/1, % Json键值列表解包
 	int2bin/1,  % 整型按二进制存储
 	b2hex/1,	% 二进制转成16进制，按字符串输出
 	h2bin/1,
-	hex2int/1	% 
-	% map_get/2	% 在map中获取满足条件的某些值
+	hex2int/1
 ]).
--author("dwg").
+-author("qingchuduwi").
 
 -type flag()  :: binary | list.
 -type mdata() :: binary() | list() | integer().
 
-%% 16进制的串转成10进制
-% binary_to_integer(<<"af">>,16).
-% list_to_integer("af",16).
 
-%%@doc LoRa发送的几个数据是大端，要转成小端
+%%@doc 二进制转成小端无符号整型
 -spec b2l_uint(binary()) -> integer().
 b2l_uint(IoData) when is_binary(IoData) ->
 	binary:decode_unsigned(IoData, little).
@@ -119,36 +113,10 @@ int_len(0, Len) -> Len * 8;
 int_len(Integer, Len) ->
 	int_len(Integer bsr 8, Len + 1).
 
-%%@doc Json键值列表打包
-base64en(JsonList) when is_list(JsonList) ->
-	base64en(JsonList, []).
-
-base64en([{K, V} | T], NewList) when is_binary(V) ->
-	base64en(T, [{K, base64:encode(V)} | NewList]);
-base64en([H | T], NewList) ->
-	base64en(T, [H| NewList]);
-base64en([], NewList) ->
-	lists:reverse(NewList).
-
-
-%%@doc Json键值列表解包
-base64de(JsonList) when is_list(JsonList) ->
-	base64de(JsonList, []).
-
-base64de([{K, V} | T], NewList) when is_binary(V) ->
-	base64de(T, [{K, base64:decode(V)} | NewList]);
-base64de([H | T], NewList) ->
-	base64de(T, [H | NewList]);
-base64de([], NewList) ->
-	lists:reverse(NewList).
-
+-spec hex2int(Any) -> Number when
+		Any :: list() | binary(),
+		Number :: integer() .
 hex2int(Any) when is_list(Any) ->
 	list_to_integer(Any, 16);
 hex2int(Any) when is_binary(Any) ->
 	list_to_integer(binary_to_list(Any), 16).
-% %% 在Map中取出Key在List中的数据
-% -spec map_get(list(), map()) -> map() .
-% map_get(List, Map) when is_list(List) andalso is_map(Map) ->
-% 	maps:filter(fun(K, _) ->
-% 		lists:member(K, List)
-% 	end, Map)
