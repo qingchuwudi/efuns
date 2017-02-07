@@ -39,6 +39,59 @@
     list_to_month/1
 ]).
 
+-export ([
+    unixtime/0,
+    list2fi/1,
+    rand/2,
+    difftime/1
+]).
+
+%%@doc 取得当前的unix时间戳（秒）
+-spec unixtime() -> TimeStamp when
+        TimeStamp :: non_neg_integer() .
+unixtime() ->
+    os:system_time(1).
+
+%%@doc 列表转换成整型、浮点型
+-spec list2fi(TimeString) -> TimeNumber when
+        TimeString :: list(),
+        TimeNumber :: integer() | float() .
+list2fi(AnyList) when is_list(AnyList) ->
+    case catch list_to_integer(AnyList) of
+        {'EXIT', _} ->
+            case catch list_to_float(AnyList) of
+                {'EXIT', _} -> throw(undefined);
+                Float -> Float
+            end;
+        Int -> Int
+    end.
+    
+%%@doc 产生一个介于Min到Max之间的随机整数
+-spec rand(Min, Max) -> Number when
+        Min :: integer(),
+        Max :: integer(),
+        Number :: integer() .
+rand(Same, Same) -> Same;
+rand(Min, Max) when Max < Min -> 0;
+rand(Min, Max) ->
+    %% 以保证不同进程都可取得不同的种子
+    case get("rand_seed") of
+        undefined ->
+            rand:seed(exsplus, os:timestamp()),
+            put("rand_seed", 1);
+        _ -> skip
+    end,
+    M = Min - 1,
+    rand:uniform(Max - M) + M.
+    
+%%@doc 计算到当前时刻的时间差
+%% Startime 时间戳
+-spec difftime(StartTime) -> DiffTime when
+        StartTime :: non_neg_integer(),
+        DiffTime :: non_neg_integer().
+difftime(StartTime) ->
+    os:system_time(1) - StartTime.
+
 %%%
 %%% 时间格式化
 %%%

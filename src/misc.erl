@@ -25,49 +25,11 @@
 -author("qingchuwudi").
 
 -export ([
-	unixtime/0,
-	list2fi/1,
-	rand/2,
-	difftime/1,
 	whereis_name/2,
 	register/3,
 	unregister/2,
 	is_process_alive/1
 ]).
-
-%%@doc 取得当前的unix时间戳（秒）
-unixtime() ->
-	os:system_time(1).
-
-%%@doc 列表转换成整型、浮点型
-list2fi(AnyList) when is_list(AnyList) ->
-	case catch list_to_integer(AnyList) of
-		{'EXIT', _} ->
-			case catch list_to_float(AnyList) of
-				{'EXIT', _} -> throw(undefined);
-				Float -> Float
-			end;
-		Int -> Int
-	end.
-	
-%%@doc 产生一个介于Min到Max之间的随机整数
-rand(Same, Same) -> Same;
-rand(Min, Max) when Max < Min -> 0;
-rand(Min, Max) ->
-	%% 以保证不同进程都可取得不同的种子
-	case get("rand_seed") of
-		undefined ->
-			rand:seed(exsplus, os:timestamp()),
-			put("rand_seed", 1);
-		_ -> skip
-	end,
-	M = Min - 1,
-	rand:uniform(Max - M) + M.
-	
-%%@doc 计算到当前时刻的时间差
-%% Startime 时间戳
-difftime(Startime) ->
-	unixtime() - Startime.
 
 whereis_name(local, Atom) -> 
 	erlang:whereis(Atom);
