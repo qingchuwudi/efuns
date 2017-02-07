@@ -17,5 +17,6 @@ _build
 rebar3.crashdump
 
 doc
+rebar.lock
 .tags*
 .fuse_hidden*
