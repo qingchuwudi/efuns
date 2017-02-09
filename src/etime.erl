@@ -25,27 +25,16 @@
 
 -author("qingchuwudi").
 
--export ([
-    timestamp2iso/1,    
-    local2utc/0,
-    local2utc/1,     
-    now2utc/1,          
-    now2local/0,        
-    now2local/1,        
-    datetime2stamp/1,   
-    return_2columns/1,
-    get_current_time/0,
-    day/1,
-    month_to_list/1,
-    list_to_month/1
-]).
+-export ([ utc_to_iso8601/0, utc_to_iso8601_extra/0, local_to_iso8601/0, 
+           local_to_iso8601_extral/0, time2utc/1
+        ]).
 
--export ([
-    unixtime/0,
-    list2fi/1,
-    rand/2,
-    difftime/1
-]).
+-export ([ timestamp2iso/1, now2local/0, time2local/1, datetime2stamp/1, 
+           return_2columns/1, get_current_time/0, day/1, month_to_list/1, 
+           list_to_month/1
+        ]).
+
+-export ([ unixtime/0, list2fi/1, rand/2, difftime/1]).
 
 %%@doc 取得当前的unix时间戳（秒）
 -spec unixtime() -> TimeStamp when
@@ -98,29 +87,57 @@ difftime(StartTime) ->
 %%%
 
 %%@doc 时间戳转iso字符串
+-spec timestamp2iso({{Year, Month, Day}, {Hour, Minute, Second}}) -> ISOTime when
+        Year :: non_neg_integer(),
+        Month :: non_neg_integer(),
+        Day :: non_neg_integer(),
+        Hour :: non_neg_integer(),
+        Minute :: non_neg_integer(),
+        Second :: non_neg_integer(),
+        ISOTime :: string().
 timestamp2iso({{Year, Month, Day}, {Hour, Minute, Second}}) ->
     lists:flatten(
       io_lib:format("~4..0w~2..0w~2..0wT~2..0w:~2..0w:~2..0w",
             [Year, Month, Day, Hour, Minute, Second])).
 
-%%@doc 本地时间转UTC格式，精确到秒
-local2utc() ->
+%%@doc utc时间转iso8601格式，精确到秒
+utc_to_iso8601() ->
+    {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:universal_time(),
+    lists:flatten(
+      io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0wZ",
+            [Year, Month, Day, Hour, Minute, Second])).
+
+%%@doc utc时间转iso8601扩展格式，精确到毫秒
+utc_to_iso8601_extra() ->
+    {_, _, MicroSecs} = TimeStamp = os:timestamp(),
+    {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_universal_time(TimeStamp),
+    lists:flatten(
+      io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w.~6..0wZ",
+            [Year, Month, Day, Hour, Minute, Second, MicroSecs])).
+
+%%@doc 本地时间转iso8601格式，精确到秒
+local_to_iso8601() ->
     {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:local_time(),
     lists:flatten(
       io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0wZ",
             [Year, Month, Day, Hour, Minute, Second])).
 
-%%@doc 本地时间转UTC格式，精确到毫秒
-local2utc(1) ->
-    {_, _, MicroSecs} = os:timestamp(),
-    {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:local_time(),
+%%@doc 本地时间转iso8601扩展格式，精确到毫秒
+local_to_iso8601_extral() ->
+    {_, _, MicroSecs} = TimeStamp = os:timestamp(),
+    {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_local_time(TimeStamp),
     lists:flatten(
       io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w.~6..0wZ",
             [Year, Month, Day, Hour, Minute, Second, MicroSecs])).
 
 
 %%doc 输入时间转UTC格式
-now2utc({MegaSecs, Secs, MicroSecs}) ->
+-spec time2utc({MegaSecs, Secs, MicroSecs}) -> UTCTime when
+        MegaSecs :: non_neg_integer(), 
+        Secs :: non_neg_integer(), 
+        MicroSecs :: non_neg_integer(), 
+        UTCTime :: string().
+time2utc({MegaSecs, Secs, MicroSecs}) ->
     {{Year, Month, Day}, {Hour, Minute, Second}} =
     calendar:now_to_universal_time({MegaSecs, Secs, MicroSecs}),
     lists:flatten(
@@ -146,7 +163,7 @@ now2local() ->
             [Year, Month, Day, Hour, Minute, Second, MicroSecs, Sign, H, M])).
 
 %%@doc 外部输入时间戳转本地时间
-now2local({MegaSecs, Secs, MicroSecs}) ->
+time2local({MegaSecs, Secs, MicroSecs}) ->
     LocalTime = calendar:now_to_local_time({MegaSecs, Secs, MicroSecs}),
     UTCTime = calendar:now_to_universal_time({MegaSecs, Secs, MicroSecs}),
     Seconds = calendar:datetime_to_gregorian_seconds(LocalTime) -
