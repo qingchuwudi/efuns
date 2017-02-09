@@ -27,7 +27,8 @@
 
 -export ([
     timestamp2iso/1,    
-    local2utc/0,        
+    local2utc/0,
+    local2utc/1,     
     now2utc/1,          
     now2local/0,        
     now2local/1,        
@@ -101,13 +102,23 @@ timestamp2iso({{Year, Month, Day}, {Hour, Minute, Second}}) ->
     lists:flatten(
       io_lib:format("~4..0w~2..0w~2..0wT~2..0w:~2..0w:~2..0w",
             [Year, Month, Day, Hour, Minute, Second])).
-%%@doc 本地时间转UTC格式
+
+%%@doc 本地时间转UTC格式，精确到秒
 local2utc() ->
+    {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:local_time(),
+    lists:flatten(
+      io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0wZ",
+            [Year, Month, Day, Hour, Minute, Second])).
+
+%%@doc 本地时间转UTC格式，精确到毫秒
+local2utc(1) ->
     {_, _, MicroSecs} = os:timestamp(),
     {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:local_time(),
     lists:flatten(
       io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w.~6..0wZ",
             [Year, Month, Day, Hour, Minute, Second, MicroSecs])).
+
+
 %%doc 输入时间转UTC格式
 now2utc({MegaSecs, Secs, MicroSecs}) ->
     {{Year, Month, Day}, {Hour, Minute, Second}} =
