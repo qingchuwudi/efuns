@@ -1,0 +1,12 @@
+{"0.2.3",
+	[{"0.2.2", [
+		{add_module, mcrypt},
+		{add_module, mnesia_config},
+		{add_module, reloader}
+	]}],
+	[{"0.2.2", [
+		{delete_module, mcrypt},
+		{delete_module, mnesia_config},
+		{delete_module, reloader}
+	]}]
+}.

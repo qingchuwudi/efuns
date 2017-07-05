@@ -1,0 +1,16 @@
+{application, efuns,
+ [{description, "Erlang common funs"},
+  {vsn, "0.2.3"},
+  {registered, []},
+  {mod, { efuns_app, []}},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, ["qingchuwudi"]},
+  {licenses, ["Apache License Version 2.0"]},
+  {links, ["https://github.com/qingchuwudi/efuns"]}
+ ]}.
